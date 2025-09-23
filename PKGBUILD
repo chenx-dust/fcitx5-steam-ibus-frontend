@@ -11,7 +11,7 @@ license=('GPL')
 conflicts=('fcitx')
 depends=('fcitx5')
 makedepends=('git' 'extra-cmake-modules' 'ninja')
-source=("git+https://github.com/$_owner/$pkgname.git#tag=$pkgver?signed")
+source=("git+https://github.com/$_owner/$pkgname.git#tag=v$pkgver")
 sha512sums=('SKIP')
 
 build() {
