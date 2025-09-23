@@ -1,0 +1,26 @@
+# Maintainer: Chenx Dust <chenx_dust@outlook.com>
+
+pkgname=fcitx5-steam-ibus-frontend
+_owner=chenx-dust
+pkgver=0.0.1
+pkgrel=1
+pkgdesc="Add fcitx5 support for Steam Big Picture session"
+arch=('x86_64')
+url="https://github.com/$_owner/$pkgname"
+license=('GPL')
+conflicts=('fcitx')
+depends=('fcitx5')
+makedepends=('git' 'extra-cmake-modules' 'ninja')
+source=("git+https://github.com/$_owner/$pkgname.git#tag=$pkgver?signed")
+sha512sums=('SKIP')
+
+build() {
+  cd $pkgname
+  cmake -GNinja -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_INSTALL_LIBDIR=/usr/lib .
+  ninja
+}
+
+package() {
+  cd $pkgname
+  DESTDIR="$pkgdir" ninja install
+}
