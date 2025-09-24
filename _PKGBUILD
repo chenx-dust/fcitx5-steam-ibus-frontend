@@ -10,7 +10,7 @@ url="https://github.com/$_owner/$pkgname"
 license=('GPL')
 conflicts=('fcitx')
 depends=('fcitx5')
-makedepends=('git' 'extra-cmake-modules' 'ninja')
+makedepends=('git' 'extra-cmake-modules' 'ninja' 'pkgconf')
 source=("git+https://github.com/$_owner/$pkgname.git#tag=v$pkgver")
 sha512sums=('SKIP')
 
