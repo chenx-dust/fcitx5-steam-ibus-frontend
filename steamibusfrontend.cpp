@@ -337,7 +337,7 @@ IBusLookupTable makeIBusLookupTable(uint32_t pageSize, uint32_t cursorPos,
 class IBusFrontend : public dbus::ObjectVTable<IBusFrontend> {
 public:
     IBusFrontend(SteamIBusFrontendModule *module, dbus::Bus *bus,
-                      const std::string &interface)
+                 const std::string &interface)
         : module_(module), instance_(module->instance()), bus_(bus),
           watcher_(std::make_unique<dbus::ServiceWatcher>(*bus_)) {
         if (watcher_) {
@@ -476,10 +476,6 @@ public:
         } else {
             updatePreeditTextTo(name_, v, cursor, offset != 0);
         }
-        if (preeditString.empty() &&
-            capabilityFlags() & CapabilityFlag::ClientSideInputPanel) {
-            hideLookupTableTo(name_);
-        }
     }
 
     void deleteSurroundingTextImpl(int offset, unsigned int size) override {
@@ -511,8 +507,16 @@ public:
         int pageSize = 0;
         CandidateLayoutHint layoutHint;
         if (!candidateList) {
+            if (showingLookupTable_) {
+                hideLookupTableTo(name_);
+                showingLookupTable_ = false;
+            }
             return;
         }
+
+        pageSize = candidateList->size();
+        cursorIndex = candidateList->cursorIndex();
+        layoutHint = candidateList->layoutHint();
 
         auto processCandidate = [&](const CandidateWord &candidate,
                                     bool appendLabel, Text fallbackLabel) {
@@ -531,37 +535,29 @@ public:
             }
         };
 
-        auto commonList =
-            std::dynamic_pointer_cast<CommonCandidateList>(candidateList);
-        if (commonList) {
-            cursorIndex = commonList->globalCursorIndex();
-            pageSize = commonList->pageSize();
-            int e = std::min((commonList->currentPage() + 1) *
-                                 commonList->pageSize(),
-                             commonList->totalSize());
-            for (int i = 0; i < e; i++) {
-                int localIndex =
-                    i - commonList->currentPage() * commonList->pageSize();
-                if (localIndex >= 0 && localIndex < commonList->size()) {
-                    processCandidate(commonList->candidateFromAll(i), true,
-                                     commonList->label(localIndex));
-                } else {
-                    processCandidate(commonList->candidateFromAll(i), false,
-                                     Text());
-                }
-            }
-        } else {
-            cursorIndex = candidateList->cursorIndex();
-            pageSize = candidateList->size();
-            for (int i = 0, e = candidateList->size(); i < e; i++) {
-                processCandidate(candidateList->candidate(i), true,
-                                 candidateList->label(i));
+        // All previous candidates should be sent to ibus.
+        auto cursorList = candidateList->toBulkCursor();
+        auto bulkList = candidateList->toBulk();
+        auto pageList = candidateList->toPageable();
+        if (cursorList && bulkList && pageList) {
+            cursorIndex = cursorList->globalCursorIndex();
+            int firstCandidateGlobalIndex =
+                cursorIndex - candidateList->cursorIndex();
+            for (int i = 0; i < firstCandidateGlobalIndex; i++) {
+                processCandidate(bulkList->candidateFromAll(i), false, Text());
             }
         }
-        layoutHint = candidateList->layoutHint();
+        for (int i = 0, e = candidateList->size(); i < e; i++) {
+            processCandidate(candidateList->candidate(i), true,
+                             candidateList->label(i));
+        }
 
         IBusLookupTable table = makeIBusLookupTable(
             pageSize, cursorIndex, true, false, layoutHint, candidates, labels);
+        if (!showingLookupTable_) {
+            showLookupTableTo(name_);
+            showingLookupTable_ = true;
+        }
         updateLookupTableTo(name_, table, true);
     }
 #define CHECK_SENDER_OR_RETURN                                                 \
@@ -610,8 +606,17 @@ public:
             IBUS_CAP_SURROUNDING_TEXT = 1 << 5
         };
         auto flags = capabilityFlags()
+                         .unset(CapabilityFlag::Preedit)
                          .unset(CapabilityFlag::FormattedPreedit)
-                         .unset(CapabilityFlag::SurroundingText);
+                         .unset(CapabilityFlag::SurroundingText)
+                         .unset(CapabilityFlag::ClientSideInputPanel);
+        // No IBUS_CAP_FOCUS means to handle all and always focus in
+        if ((cap & IBUS_CAP_FOCUS) == 0) {
+            cap |= (IBUS_CAP_PREEDIT_TEXT | IBUS_CAP_AUXILIARY_TEXT |
+                    IBUS_CAP_LOOKUP_TABLE | IBUS_CAP_PROPERTY);
+            this->focusIn();
+            this->setFocusGroup(nullptr);
+        }
         if (cap & IBUS_CAP_PREEDIT_TEXT) {
             flags |= CapabilityFlag::Preedit;
             flags |= CapabilityFlag::FormattedPreedit;
@@ -645,6 +650,9 @@ public:
         // Force focus if there's keyevent.
         if (!hasFocus()) {
             focusIn();
+        }
+        if (capabilityFlags().test(CapabilityFlag::SurroundingText)) {
+            requireSurroundingTextTo(name_);
         }
 
         return keyEvent(event);
@@ -862,6 +870,7 @@ private:
     std::string name_;
     bool clientCommitPreedit_ = false;
     bool effectivePostProcessKeyEvent_ = false;
+    bool showingLookupTable_ = false;
 
     IBusService service_{this};
 };
