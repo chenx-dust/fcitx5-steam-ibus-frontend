@@ -43,6 +43,8 @@ cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_INSTALL_LIBDIR=/usr/lib ..
 
 ## 使用
 
+**首先**，应当利用 `fcitx5-configtool` 或者其他工具，将需要使用的输入法加入进默认的输入法组中。
+
 需要注意的是，使用本插件时应当禁用自带的 ibusfrontend 前端，否则会产生冲突。
 
 ### 手动启动
@@ -57,6 +59,10 @@ fcitx5 --disable ibusfrontend -r
 ### Systemd 启动
 
 （暂无）
+
+## 兼容性
+
+目前确认 `fcitx5-chinese-addons` 完全兼容。其他输入法可能有无法翻页、无法选择候选词等问题，请反馈。目前确认简体中文（拼音）、日语、韩语具有完全自由的输入法切换功能，其他输入法可能无法自由切换，只能在纯字母键盘和启用输入法的键盘中切换，可以通过默认输入法组的默认输入法进行配置。
 
 ## 授权
 
