@@ -514,43 +514,33 @@ public:
             return;
         }
 
-        pageSize = candidateList->size();
-        cursorIndex = candidateList->cursorIndex();
-        layoutHint = candidateList->layoutHint();
-
-        auto processCandidate = [&](const CandidateWord &candidate,
-                                    bool appendLabel, Text fallbackLabel) {
+        auto processCandidate = [&](const CandidateWord &candidate) {
             if (candidate.isPlaceHolder()) {
                 return;
             }
             Text candidateText =
-                instance->outputFilter(this, candidate.textWithComment());
+            instance->outputFilter(this, candidate.textWithComment());
             candidates.emplace_back(candidateText.toString());
-            if (appendLabel) {
-                Text labelText = candidate.hasCustomLabel()
-                                     ? candidate.customLabel()
-                                     : fallbackLabel;
-                labelText = instance->outputFilter(this, labelText);
-                labels.emplace_back(labelText.toString());
-            }
         };
-
+        
         // All previous candidates should be sent to ibus.
-        auto cursorList = candidateList->toBulkCursor();
-        auto bulkList = candidateList->toBulk();
-        auto pageList = candidateList->toPageable();
-        if (cursorList && bulkList && pageList) {
-            cursorIndex = cursorList->globalCursorIndex();
-            int firstCandidateGlobalIndex =
-                cursorIndex - candidateList->cursorIndex();
-            for (int i = 0; i < firstCandidateGlobalIndex; i++) {
-                processCandidate(bulkList->candidateFromAll(i), false, Text());
+        auto commonList =
+        std::dynamic_pointer_cast<CommonCandidateList>(candidateList);
+        if (commonList && commonList->totalSize() != -1) {
+            pageSize = commonList->pageSize();
+            cursorIndex = commonList->globalCursorIndex();
+            for (int i = 0; i < commonList->totalSize(); i++) {
+                processCandidate(commonList->candidateFromAll(i));
+            }
+        } else {
+            pageSize = candidateList->size();
+            cursorIndex = candidateList->cursorIndex();
+            for (int i = 0, e = candidateList->size(); i < e; i++) {
+                processCandidate(candidateList->candidate(i));
             }
         }
-        for (int i = 0, e = candidateList->size(); i < e; i++) {
-            processCandidate(candidateList->candidate(i), true,
-                             candidateList->label(i));
-        }
+
+        layoutHint = candidateList->layoutHint();
 
         IBusLookupTable table = makeIBusLookupTable(
             pageSize, cursorIndex, true, false, layoutHint, candidates, labels);
@@ -651,9 +641,9 @@ public:
         if (!hasFocus()) {
             focusIn();
         }
-        if (capabilityFlags().test(CapabilityFlag::SurroundingText)) {
-            requireSurroundingTextTo(name_);
-        }
+        // if (capabilityFlags().test(CapabilityFlag::SurroundingText)) {
+        //     requireSurroundingTextTo(name_);
+        // }
 
         return keyEvent(event);
     }
