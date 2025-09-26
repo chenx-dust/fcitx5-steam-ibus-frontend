@@ -893,6 +893,12 @@ IBusFrontend::createInputContext(const std::string & /* unused */) {
 
 SteamIBusFrontendModule::SteamIBusFrontendModule(Instance *instance)
     : instance_(instance), socketPaths_(allSocketPaths(standardPath_)) {
+    for (const auto &name : instance_->addonManager().loadedAddonNames()) {
+        if (name == "ibusfrontend") {
+            FCITX_IBUS_WARN() << "Should not load with ibusfrontend addon, exiting";
+            return;
+        }
+    }
     dbus::VariantTypeRegistry::defaultRegistry().registerType<IBusText>();
     dbus::VariantTypeRegistry::defaultRegistry().registerType<IBusAttribute>();
     dbus::VariantTypeRegistry::defaultRegistry().registerType<IBusAttrList>();

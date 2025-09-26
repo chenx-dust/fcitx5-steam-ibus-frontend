@@ -53,7 +53,7 @@ cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_INSTALL_LIBDIR=/usr/lib ..
 
 ```bash
 export DISPLAY=:1   # 大多数情况，按需调整为 Steam 大屏幕所在的 DISPLAY
-fcitx5 --disable ibusfrontend -r
+fcitx5 --enable steamibusfrontend --disable ibusfrontend -r
 ```
 
 ### Systemd 启动
