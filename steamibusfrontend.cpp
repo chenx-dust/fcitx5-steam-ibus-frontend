@@ -529,7 +529,11 @@ public:
         if (commonList && commonList->totalSize() != -1) {
             pageSize = commonList->pageSize();
             cursorIndex = commonList->globalCursorIndex();
-            for (int i = 0; i < commonList->totalSize(); i++) {
+            int clampStartIndex = std::max(0, cursorIndex - pageSize);
+            int clampEndIndex =
+                std::min(commonList->totalSize(), cursorIndex + pageSize);
+            cursorIndex -= clampStartIndex;
+            for (int i = clampStartIndex; i < clampEndIndex; i++) {
                 processCandidate(commonList->candidateFromAll(i));
             }
         } else {
