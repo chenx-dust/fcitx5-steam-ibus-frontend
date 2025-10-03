@@ -346,6 +346,19 @@ public:
     }
 
     dbus::ObjectPath createInputContext(const std::string &args);
+    
+    void setGlobalEngine(const std::string &engine) {
+        FCITX_IBUS_WARN() << "Switch to engine: " << engine;
+        if (engine.starts_with("xkb")) {
+            instance_->deactivate();
+        } else {
+            instance_->activate();
+            instance_->setCurrentInputMethod(engine);
+        }
+    }
+    dbus::Variant getGlobalEngine() {
+        return dbus::Variant(instance_->currentInputMethod());
+    }
 
     dbus::ServiceWatcher &serviceWatcher() { return *watcher_; }
     dbus::Bus *bus() { return bus_; }
@@ -354,6 +367,8 @@ public:
 private:
     FCITX_OBJECT_VTABLE_METHOD(createInputContext, "CreateInputContext", "s",
                                "o");
+    FCITX_OBJECT_VTABLE_METHOD(setGlobalEngine, "SetGlobalEngine", "s", "");
+    FCITX_OBJECT_VTABLE_METHOD(getGlobalEngine, "GetGlobalEngine", "", "v");
 
     SteamIBusFrontendModule *module_;
     Instance *instance_;
