@@ -18,7 +18,13 @@ yay -S fcitx5-steam-ibus-frontend
 
 ### Flatpak
 
-（暂无）
+先确保拥有 Flatpak 环境且已安装好 `org.fcitx.Fcitx5`
+
+执行：
+
+```bash
+flatpak install --user --no-gpg-verify https://chenx-dust.github.io/fcitx5-steam-ibus-frontend/org.fcitx.Fcitx5.Addon.SteamIBusFrontend.flatpakref
+```
 
 ### 手动安装
 
