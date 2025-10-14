@@ -78,15 +78,14 @@ jobs:
           cat > public/index.html << 'HTML'
           <!doctype html>
           <meta charset="utf-8">
-          <title>Flatpak Repo</title>
-          <h1>Flatpak Repo</h1>
+          <title>${REPO_TITLE}</title>
+          <h1>${REPO_TITLE}</h1>
           <p>这是自动发布的 Flatpak 仓库。你可以用以下命令添加 remote 并安装：</p>
           <pre>
-          flatpak remote-add --user --no-gpg-verify my-repo https://{OWNER}.github.io/{REPO}/repo
+          flatpak remote-add --user --no-gpg-verify fcitx5-steam-ibus-frontend-repo https://{OWNER}.github.io/{REPO}/repo
 
-          flatpak install --user my-repo ${APP_ID}
+          flatpak install --user fcitx5-steam-ibus-frontend-repo ${APP_ID}
           </pre>
-          <p>也可以直接浏览 <a href="./repo">repo/</a> 目录。</p>
           HTML
 
           OWNER="${GITHUB_REPOSITORY%/*}"
@@ -94,15 +93,6 @@ jobs:
           sed -i "s|{OWNER}|$OWNER|g" public/index.html
           sed -i "s|{REPO}|$REPO|g" public/index.html
           sed -i "s|\${APP_ID}|${APP_ID}|g" public/index.html
-
-          cat > "public/${APP_ID}.flatpakref" << REF
-          [Flatpak Ref]
-          Title=${APP_ID}
-          Name=${APP_ID}
-          Branch=stable
-          Url=https://${OWNER}.github.io/${REPO}/repo
-          IsRuntime=false
-          REF
 
       - name: Upload artifact to Pages
         uses: actions/upload-pages-artifact@v3
