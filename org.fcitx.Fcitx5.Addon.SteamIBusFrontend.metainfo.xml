@@ -5,6 +5,9 @@
 
   <extends>org.fcitx.Fcitx5</extends>
 
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>LGPL-2.1+</project_license>
+
   <name>Fcitx5 Steam IBus Frontend</name>
   <name xml:lang="zh-CN">Fcitx5 Steam IBus 前端</name>
 
@@ -23,7 +26,7 @@
   </description>
 
   <project_group>Fcitx</project_group>
-  <project_license>LGPL-2.1-or-later</project_license>
+  <project_license>LGPL-2.1+</project_license>
 
   <url type="homepage">https://github.com/chenx-dust/fcitx5-steam-ibus-frontend</url>
   <url type="bugtracker">https://github.com/chenx-dust/fcitx5-steam-ibus-frontend/issues</url>
