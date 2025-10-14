@@ -8,11 +8,14 @@ separate-locales: false
 build-options:
   prefix: /app/addons/SteamIBusFrontend
   prepend-pkg-config-path: /app/addons/SteamIBusFrontend/lib/pkgconfig
+finish-args:
+  - --metadata=version=0.1.0
 modules:
   - name: fcitx5-steam-ibus-frontend
     buildsystem: cmake-ninja
     config-opts:
       - -DCMAKE_BUILD_TYPE=Release
+      - -DCMAKE_INSTALL_LIBDIR=lib
     sources:
       - type: dir
         path: .

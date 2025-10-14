@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(fcitx5-steam-ibus-frontend VERSION 0.0.2)
+project(fcitx5-steam-ibus-frontend VERSION 0.1.0)
 
 set(REQUIRED_FCITX_VERSION 5.1.14)
 

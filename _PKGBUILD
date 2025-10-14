@@ -2,7 +2,7 @@
 
 pkgname=fcitx5-steam-ibus-frontend
 _owner=chenx-dust
-pkgver=0.0.2
+pkgver=0.1.0
 pkgrel=1
 pkgdesc="Add fcitx5 support for Steam Big Picture session"
 arch=('x86_64')
