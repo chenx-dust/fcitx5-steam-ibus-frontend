@@ -37,7 +37,7 @@ jobs:
           sudo apt-get install -y flatpak flatpak-builder
           flatpak --version
           flatpak-builder --version
-          flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+          flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 
       - name: Cache flatpak-builder
         uses: actions/cache@v4
@@ -61,6 +61,7 @@ jobs:
             --force-clean \
             --repo="$REPO_DIR" \
             --install-deps-from=flathub \
+            --user \
             "$BUILD_DIR" \
             "${MANIFEST}"
 
@@ -71,10 +72,6 @@ jobs:
 
           mkdir -p public/repo
           rsync -a "$REPO_DIR/" public/repo/
-
-      - name: Optimize & finalize repo (generate static deltas)
-        run: |
-          flatpak build-update-repo --generate-static-deltas --title="${REPO_TITLE}" repo
 
       - name: Create website & helper files
         run: |
