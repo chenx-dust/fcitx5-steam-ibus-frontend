@@ -26,3 +26,4 @@ install(TARGETS steamibusfrontend DESTINATION "${FCITX_INSTALL_ADDONDIR}")
 configure_file(steamibusfrontend.conf.in.in steamibusfrontend.conf @ONLY)
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/steamibusfrontend.conf" DESTINATION "${FCITX_INSTALL_PKGDATADIR}/addon"
         COMPONENT config)
+install(FILES org.fcitx.Fcitx5.metainfo.xml DESTINATION ${CMAKE_INSTALL_DATADIR}/metainfo)

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- AppStream metadata for fcitx5-steam-ibus-frontend -->
+<component type="addon">
+  <id>org.fcitx.Fcitx5.Addon.SteamIBusFrontend</id>
+
+  <extends>org.fcitx.Fcitx5</extends>
+
+  <name>Fcitx5 Steam IBus Frontend</name>
+  <name xml:lang="zh-CN">Fcitx5 Steam IBus 前端</name>
+
+  <summary>Add fcitx5 support for Steam Big Picture / SteamOS / Steam Deck</summary>
+  <summary xml:lang="zh-CN">为 Steam 大屏幕 / SteamOS / Steam Deck 提供 fcitx5 支持</summary>
+
+  <description>
+    <p>
+      A fcitx5 frontend designed for Steam Big Picture sessions, useful on SteamOS and Steam Deck.
+      Enable it while disabling the builtin ibusfrontend to avoid conflicts.
+    </p>
+    <p xml:lang="zh-CN">
+      面向 Steam 大屏幕会话的 fcitx5 前端，适用于 SteamOS 与 Steam Deck。
+      使用时应禁用自带的 ibusfrontend 以避免冲突。
+    </p>
+  </description>
+
+  <project_group>Fcitx</project_group>
+  <project_license>LGPL-2.1-or-later</project_license>
+
+  <url type="homepage">https://github.com/chenx-dust/fcitx5-steam-ibus-frontend</url>
+  <url type="bugtracker">https://github.com/chenx-dust/fcitx5-steam-ibus-frontend/issues</url>
+
+  <releases>
+    <release version="0.1.0" date="2025-10-15"/>
+    <release version="0.0.4" date="2025-10-05"/>
+  </releases>
+
+  <developer_name>Chenx Dust</developer_name>
+
+  <categories>
+    <category>Utility</category>
+  </categories>
+
+  <keywords>
+    <keyword>fcitx5</keyword>
+    <keyword>ibus</keyword>
+    <keyword>steam</keyword>
+    <keyword xml:lang="zh-CN">输入法</keyword>
+  </keywords>
+</component>
