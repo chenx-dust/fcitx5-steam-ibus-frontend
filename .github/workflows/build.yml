@@ -1,0 +1,117 @@
+name: Build Flatpak
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ "*" ]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+env:
+  MANIFEST: "org.fcitx.Fcitx5.Addon.SteamIBusFrontend.yaml"
+  APP_ID: "org.fcitx.Fcitx5.Addon.SteamIBusFrontend"
+  REPO_TITLE: "Fcitx5 Steam IBus Frontend Flatpak Repo"
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Flatpak tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y flatpak flatpak-builder
+          flatpak --version
+          flatpak-builder --version
+          flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+
+      - name: Cache flatpak-builder
+        uses: actions/cache@v4
+        with:
+          path: |
+            .flatpak-builder
+            ~/.cache/flatpak
+          key: ${{ runner.os }}-flatpak-${{ hashFiles(env.MANIFEST) }}
+          restore-keys: |
+            ${{ runner.os }}-flatpak-
+
+      - name: Build Flatpak
+        run: |
+          REPO_DIR=$(mktemp -d)
+          BUILD_DIR=$(mktemp -d)
+
+          echo "Using REPO_DIR=$REPO_DIR"
+          echo "Using BUILD_DIR=$BUILD_DIR"
+
+          flatpak-builder \
+            --force-clean \
+            --repo="$REPO_DIR" \
+            --install-deps-from=flathub \
+            "$BUILD_DIR" \
+            "${MANIFEST}"
+
+          flatpak build-update-repo \
+            --generate-static-deltas \
+            --title="${REPO_TITLE}" \
+            "$REPO_DIR"
+
+          mkdir -p public/repo
+          rsync -a "$REPO_DIR/" public/repo/
+
+      - name: Optimize & finalize repo (generate static deltas)
+        run: |
+          flatpak build-update-repo --generate-static-deltas --title="${REPO_TITLE}" repo
+
+      - name: Create website & helper files
+        run: |
+          cat > public/index.html << 'HTML'
+          <!doctype html>
+          <meta charset="utf-8">
+          <title>Flatpak Repo</title>
+          <h1>Flatpak Repo</h1>
+          <p>这是自动发布的 Flatpak 仓库。你可以用以下命令添加 remote 并安装：</p>
+          <pre>
+          flatpak remote-add --user --no-gpg-verify my-repo https://{OWNER}.github.io/{REPO}/repo
+
+          flatpak install --user my-repo ${APP_ID}
+          </pre>
+          <p>也可以直接浏览 <a href="./repo">repo/</a> 目录。</p>
+          HTML
+
+          OWNER="${GITHUB_REPOSITORY%/*}"
+          REPO="${GITHUB_REPOSITORY#*/}"
+          sed -i "s|{OWNER}|$OWNER|g" public/index.html
+          sed -i "s|{REPO}|$REPO|g" public/index.html
+          sed -i "s|\${APP_ID}|${APP_ID}|g" public/index.html
+
+          cat > "public/${APP_ID}.flatpakref" << REF
+          [Flatpak Ref]
+          Title=${APP_ID}
+          Name=${APP_ID}
+          Branch=stable
+          Url=https://${OWNER}.github.io/${REPO}/repo
+          IsRuntime=false
+          REF
+
+      - name: Upload artifact to Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+
+      - name: Deploy to GitHub Pages
+        id: deploy
+        uses: actions/deploy-pages@v4
