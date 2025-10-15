@@ -77,9 +77,10 @@ jobs:
           cat > public/index.html << 'HTML'
           <!doctype html>
           <meta charset="utf-8">
-          <title>${{ github.env.REPO_TITLE }}</title>
-          <h1>${{ github.env.REPO_TITLE }}</h1>
+          <title>${{ env.REPO_TITLE }}</title>
+          <h1>${{ env.REPO_TITLE }}</h1>
           <p>这是自动发布的 Flatpak 仓库。你可以用以下命令添加 remote 并安装：</p>
+          <p>This is an automatically published Flatpak repository. You can add the remote and install it with the following command:</p>
           <pre>
           flatpak remote-add --user --no-gpg-verify fcitx5-steam-ibus-frontend-repo https://{OWNER}.github.io/{REPO}/repo
 
