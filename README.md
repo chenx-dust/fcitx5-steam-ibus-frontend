@@ -70,6 +70,12 @@ export DISPLAY=:1   # 大多数情况，按需调整为 Steam 大屏幕所在的
 fcitx5 --enable steamibusfrontend --disable ibusfrontend -r
 ```
 
+如果使用 Flatpak 则使用下面的命令：
+
+```bash
+flatpak run org.fcitx.Fcitx5 --enable steamibusfrontend --disable ibusfrontend
+```
+
 ### Systemd 启动
 
 （暂无）
